@@ -1,0 +1,23 @@
+image: docker-ro.laputa.veracode.io/agora/buildbox:centos7-m2-gradle-latest
+
+
+stages:
+    - build
+    - publish
+    
+
+python-sqlalchemy-1.x-build:
+    stage: build
+    artifacts:
+        paths:
+          - research_testcases/*.zip
+    
+    script:
+        - cd research_testcases
+        - find . -type d -not -name '.*' -maxdepth 2 -exec zip -r {}.zip {} \;
+    
+python-sqlalchemy-1.x-publish:
+    stage: publish
+    script:
+        - cd research_testcases
+        - find . -name '*.zip' -exec curl https://maven.laputa.veracode.io/api/object/snapshots/com/veracode/research/python-sqlalchemy-1.x/ --upload-file {} \;
